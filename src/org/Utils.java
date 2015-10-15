@@ -2,12 +2,16 @@ package org;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.Vector;
+import java.lang.*;
 
-
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -67,7 +71,50 @@ public class Utils {
 		out.put(0, 0, data);
 		return out;
 	}
-
+	private static Mat HomomorphicFilter(String filename)
+	{
+		float lower, upper, threshold;
+		Mat img = Imgcodecs.imread(filename, Imgcodecs.CV_LOAD_IMAGE_COLOR);
+		
+		int width = img.cols();
+		int height = img.rows();
+		int channel = img.channels();
+		img.convertTo(img, CvType.CV_32FC3, 1.0 / 255.0);
+		
+		lower = 0.5f;
+		upper = 2.0f;
+		threshold = 7.5f;
 	
+		Vector<Mat> chs = new Vector<>();
+		Vector<Mat> spc = new Vector<>();
+		for(int i = 0; i < channel; i++) spc.addElement(new Mat(height, width, CvType.CV_32FC1));	
+		Core.split(img, chs);
+		for(int c=0; c<channel; c++) {
+			Core.dct(chs.get(c), spc.get(c));
+			hef(spc.get(c), spc.get(c), lower, upper, threshold);
+			Core.idct(spc.get(c), chs.get(c));
+		}
+		Mat out = new Mat();
+		Core.merge(chs, out);
+		out.convertTo(out, CvType.CV_8UC3, 255.0);
+		return out;
+	}
+	
+	static void hef(Mat input, Mat output, float lower, float upper, float threshold) {
+		int width = input.cols();
+		int height = input.rows();
+		int channel = input.channels();
+
+		for(int y=0; y<height; y++) {
+			for(int x=0; x<width; x++) {
+				float r = (float) Math.sqrt((float)(x*x + y*y));
+				double coeff = (1.0 - 1.0 / (1.0 + Math.exp(r - threshold))) * (upper - lower) + lower;
+				for(int c=0; c<channel; c++) {
+					input.get(y, x*channel+c);
+					//output.put(y, x*channel+c,coeff * input.get(y, x*channel+c));					
+				}
+			}
+		}
+	}
 
 }
