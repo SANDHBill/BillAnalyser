@@ -157,7 +157,7 @@ public class App extends Application {
 	@Override
 	public void start(Stage stage) {
 		Image image;
-		image = new Image("file:/Users/user/Downloads/FullSizeRender-3.jpg");
+		image = new Image("file:/Users/user/Documents/workspace/BillAnalyser/resource/reciepts/i5.jpg");
 		Polygon poly = new Polygon(50, 80, 350, 80, 350, 400, 100, 400);
 		BorderPane drawingPane = new BorderPane(poly);
 		ImageView im = new ImageView(image);
