@@ -270,7 +270,10 @@ public class DrawingPaneController {
 		//WritableImage wi = copyImage(Utils.mat2Image(undistorted), (int)minX,(int)minY,(int)width,(int)height);
 	     WritableImage wi = copyImage(Utils.mat2Image(undistorted));
 		setCurrentImage(wi);
-		// saveSelectedArea(wi);
+		
+		File file = new File(fileLoc);
+		saveSelectedArea(wi, file);
+		
 		original.release();
 	}
 

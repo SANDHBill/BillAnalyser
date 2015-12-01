@@ -11,16 +11,17 @@ import java.net.URLClassLoader;
 import org.opencv.core.Core;
 
 public class TestTransformer {
-	static String fileLoc = "/i1.jpg";
+	static String fileLoc = "/i1_trim.jpg";
 	
 	public static void main(String[] args){
 		System.loadLibrary( Core.NATIVE_LIBRARY_NAME);
 		
 		Transformer transformerAdaptive = new GaussianAdaptiveOCRTransformer();
-		Transformer transformerFix = new GaussianFixThresholdOCRTransformer();
+		Transformer transformerFix = new shahramTestTransformer();
+		TextCleansingTransformer textCleanser = new TextCleansingTransformer();
 		transformerFix.setDebugMode(true);
 		
-		String[] result = new String[2];
+		String[] result = new String[3];
 		
 		URL url = ClassLoader.class.getResource(fileLoc);
 		
@@ -29,6 +30,7 @@ public class TestTransformer {
 	    	//result[0] = transformerAdaptive.transform(imageIn);
 	    	
 	    	result[1] = transformerFix.transform(imageIn);
+	    	result[2] = textCleanser.transform(result[1]);
 	    } catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -42,6 +44,8 @@ public class TestTransformer {
 		System.out.println(result[0]);
 		System.out.println("-----");
 		System.out.println(result[1]);
+		System.out.println("-----");
+		System.out.println(result[2]);
 	}
 	
 	public static void printClassPath(){

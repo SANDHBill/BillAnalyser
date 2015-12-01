@@ -18,6 +18,13 @@ import org.opencv.imgcodecs.Imgcodecs;
 
 public abstract class AbstractTransformer implements Transformer{
 	private volatile boolean debugMode = false;
+	private String parameters ="";
+	public String getParameters() {
+		return parameters;
+	}
+	public void setParameters(String parameters) {
+		this.parameters = parameters;
+	}
 	public boolean isDebugMode() {
 		return debugMode;
 	}
@@ -68,7 +75,7 @@ public abstract class AbstractTransformer implements Transformer{
 		File tempFile = null;
 		try {
 			byte[] imageBytes = IOUtils.toByteArray(imageStreamIn);	
-			tempFile = File.createTempFile("sandh_"+this.getClass().getName(), String.valueOf(System.currentTimeMillis()+".png"), null);
+			tempFile = File.createTempFile("sandh_"+this.getClass().getName()+"_"+this.getParameters()+"_", String.valueOf(System.currentTimeMillis()+".png"), null);
 			FileOutputStream fos = new FileOutputStream(tempFile);
 			fos.write(imageBytes);
 			fos.flush();
