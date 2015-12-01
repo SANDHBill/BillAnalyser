@@ -18,7 +18,8 @@ public class shahramTestTransformer extends AbstractTransformer  implements Tran
 		Mat deNoisedImageMat = removeNoise(grayScaledImageMat);
 		Mat blackAndWhiteImageMat = blackAndWhiteImage(deNoisedImageMat);
 		Mat erodeDilatedImageMat = morphologicalOperations(blackAndWhiteImageMat);
-		return erodeDilatedImageMat;
+		Mat removedDots = clearSmallBlackDots(erodeDilatedImageMat, 300, 0.9);
+		return removedDots;
 	}
 
 
@@ -55,35 +56,37 @@ public class shahramTestTransformer extends AbstractTransformer  implements Tran
 		//Imgproc.threshold(imageMatOut, imageMatOut, 220, 255, Imgproc.THRESH_BINARY );
 		//Imgproc.dilate(imageMatOut, imageMatOut, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3)));
 		//Imgproc.erode(imageMatIn, imageMatOut, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(8,8)));    
-		Imgproc.erode(imageMatIn, imageMatOut, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(40,40))); 
+		Imgproc.erode(imageMatIn, imageMatOut, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5))); 
 		//Imgproc.dilate(imageMatOut, imageMatOut, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(4,4)));
 		this.setParameters("adaptive5x2erode40x40");
 		return imageMatOut;		
 	}
 	
-	private Mat test(Mat imageMatIn)
+	private Mat clearSmallBlackDots(Mat imageMatIn,int countourSize, double threshold)
 	{
+		Mat imageMatOut = new Mat();
+		imageMatIn.copyTo(imageMatOut);
 		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 		Mat hierarchy = new Mat();
-	    Imgproc.findContours(imageMatIn, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	    Imgproc.findContours(imageMatIn, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		
 	    for(MatOfPoint contour : contours) 
 	    {
 	        Rect R = Imgproc.boundingRect(contour);
-	        if( R.width*R.height < 300 )
+	        if( R.width*R.height < countourSize )
 	        {
 	            Mat roi = new Mat(imageMatIn,R);
 
-	            if (Core.countNonZero(roi) < R.width*R.height*0.9 )
+	            if (Core.countNonZero(roi) < R.width*R.height*threshold )
 	            {
-	            	Imgproc.rectangle(imageMatIn,R.br(),R.tl(),new Scalar(0,0,255));
-	                Mat croi = new Mat(imageMatIn,R);
-	                croi.setTo(new Scalar(0,0,255)); // this line is to clear small dots
+	            	Imgproc.rectangle(imageMatOut,R.tl(),R.br(),new Scalar(255,255,255));
+	                Mat croi = new Mat(imageMatOut,R);
+	                croi.setTo(new Scalar(255,255,255)); // this line is to clear small dots
 	            }
 	        }
 	    }
-	    return imageMatIn;
+	    return imageMatOut;
 	}
 	
 
